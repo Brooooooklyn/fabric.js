@@ -31,7 +31,7 @@ else {
     }).window;
   fabric.document = virtualWindow.document;
   fabric.jsdomImplForWrapper = require('jsdom/lib/jsdom/living/generated/utils').implForWrapper;
-  fabric.nodeCanvas = require('jsdom/lib/jsdom/utils').Canvas;
+  fabric.nodeCanvas = require('@napi-rs/canvas').Canvas;
   fabric.window = virtualWindow;
   DOMParser = fabric.window.DOMParser;
 }

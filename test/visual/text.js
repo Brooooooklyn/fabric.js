@@ -3,18 +3,11 @@
   fabric.isWebglSupported = false;
   var visualTestLoop;
   if (fabric.isLikelyNode) {
-    fabric.nodeCanvas.registerFont(__dirname + '/../fixtures/Ubuntu-Regular.ttf', {
-      family: 'Ubuntu', weight: 'regular', style: 'normal'
-    });
-    fabric.nodeCanvas.registerFont(__dirname + '/../fixtures/Ubuntu-Bold.ttf', {
-      family: 'Ubuntu', weight: 'bold', style: 'normal'
-    });
-    fabric.nodeCanvas.registerFont(__dirname + '/../fixtures/Ubuntu-Italic.ttf', {
-      family: 'Ubuntu', weight: 'regular', style: 'italic'
-    });
-    fabric.nodeCanvas.registerFont(__dirname + '/../fixtures/Ubuntu-BoldItalic.ttf', {
-      family: 'Ubuntu', weight: 'bold', style: 'italic'
-    });
+    var GlobalFonts = require('@napi-rs/canvas').GlobalFonts;
+    GlobalFonts.registerFromPath(__dirname + '/../fixtures/Ubuntu-Regular.ttf', 'Ubuntu');
+    GlobalFonts.registerFromPath(__dirname + '/../fixtures/Ubuntu-Bold.ttf', 'Ubuntu');
+    GlobalFonts.registerFromPath(__dirname + '/../fixtures/Ubuntu-Italic.ttf', 'Ubuntu');
+    GlobalFonts.registerFromPath(__dirname + '/../fixtures/Ubuntu-BoldItalic.ttf', 'Ubuntu');
     visualTestLoop = global.visualTestLoop;
   }
   else {

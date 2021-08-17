@@ -64,7 +64,7 @@
     "testem:ci": "testem ci"
   },
   "optionalDependencies": {
-    "canvas": "^2.6.1",
+    "@napi-rs/canvas": "^0.1.5",
     "jsdom": "^15.2.1"
   },
   "devDependencies": {

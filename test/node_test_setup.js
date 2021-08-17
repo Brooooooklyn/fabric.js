@@ -1,5 +1,6 @@
 // set the fabric framework as a global for tests
 var chalk = require('chalk');
+var Canvas = require('@napi-rs/canvas').Canvas;
 global.fabric = require('../dist/fabric').fabric;
 global.pixelmatch = require('pixelmatch');
 global.fs = require('fs');
@@ -56,6 +57,6 @@ var virtualWindow = new jsdom.JSDOM(
   }).window;
 fabric.document = virtualWindow.document;
 fabric.jsdomImplForWrapper = require('jsdom/lib/jsdom/living/generated/utils').implForWrapper;
-fabric.nodeCanvas = require('jsdom/lib/jsdom/utils').Canvas;
+fabric.nodeCanvas = Canvas;
 fabric.window = virtualWindow;
 DOMParser = fabric.window.DOMParser;
