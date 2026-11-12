@@ -9,16 +9,24 @@ if (!fixturesUrl.endsWith('/')) {
   fixturesUrl += '/';
 }
 
+// Node 20 requires vmThreads, newer versions can use threads
+const nodeMajor = parseInt(process.version.slice(1).split('.')[0]);
+const pool = nodeMajor <= 20 ? 'vmThreads' : 'threads';
+
 export default defineConfig({
   resolve: {
     alias: {
+      '@fabricjs/core': resolve(__dirname, './fabric.ts'),
+      '@fabricjs/node': resolve(__dirname, './packages/node/src/index.ts'),
+      '@fabricjs/skia': resolve(__dirname, './packages/skia/src/index.ts'),
       fabric: resolve(__dirname, './fabric.ts'),
     },
   },
   test: {
-    pool: 'vmThreads',
+    pool,
     clearMocks: true,
     mockReset: true,
+    restoreMocks: true,
     snapshotSerializers: [
       'test/snapshot-serializers/canvas-rendering-context.ts',
     ],
@@ -35,16 +43,36 @@ export default defineConfig({
             },
           },
           name: 'unit-node',
+          exclude: ['packages/skia/**', '**/node_modules/**'],
         },
       },
       {
         extends: true,
         test: {
+          name: 'unit-skia',
+          environment: './test/environments/skia.ts',
+          environmentOptions: {
+            jsdom: { resources: 'usable', url: fixturesUrl },
+          },
+          setupFiles: ['./vitest.skia.setup.ts'],
+          sequence: { setupFiles: 'list' },
+          exclude: ['packages/node/**', '**/node_modules/**'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          exclude: ['packages/skia/**', '**/node_modules/**'],
           browser: {
             provider: playwright(),
             enabled: true,
             headless: true,
-            instances: [{ browser: 'chromium' }],
+            instances: [
+              {
+                browser: 'chromium',
+                isolate: true,
+              },
+            ],
           },
           name: 'unit-chromium',
         },
@@ -52,6 +80,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          exclude: ['packages/skia/**', '**/node_modules/**'],
           browser: {
             provider: playwright({
               contextOptions: {
@@ -63,6 +92,7 @@ export default defineConfig({
             instances: [
               {
                 browser: 'firefox',
+                isolate: true,
               },
             ],
           },
@@ -75,10 +105,16 @@ export default defineConfig({
       'src/**/*.spec.{ts,tsx}',
       'extensions/**/*.spec.{ts,tsx}',
       'extensions/**/*.test.{ts,tsx}',
+      'packages/*/src/**/*.spec.{ts,tsx}',
+      'packages/*/src/**/*.test.{ts,tsx}',
     ],
     coverage: {
       reportsDirectory: '.nyc_output',
-      reporter: ['json', 'text'],
+      reporter: [
+        'text',
+        'lcov',
+        ['text-summary', { file: 'coverage-summary.txt' }],
+      ],
       exclude: [
         'test/**',
         'dist/**',
@@ -91,7 +127,7 @@ export default defineConfig({
         '**/node_modules/**',
         '.codesandbox/**',
         'lib/**',
-        'e2e/**',
+        'packages/e2e/**',
         'scripts/**',
         'publish-next.js',
         'publish.js',

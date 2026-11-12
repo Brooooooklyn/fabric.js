@@ -1,0 +1,45 @@
+/**
+ * Runs in the **BROWSER**
+ */
+
+import * as fabric from 'fabric';
+import { renderTests } from './renderingCases';
+import { beforeRenderTest } from '../../test';
+
+beforeRenderTest(
+  (canvas) => {
+    return renderTests.map((renderTest) => {
+      return {
+        async boundFunction() {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              renderTest,
+              'enableGLFiltering',
+            )
+          ) {
+            fabric.config.configure({
+              enableGLFiltering: renderTest.enableGLFiltering,
+            });
+          }
+          canvas.clear();
+          canvas.setZoom(1);
+          canvas.backgroundColor = 'white';
+          canvas.setDimensions({
+            width: renderTest.size[0],
+            height: renderTest.size[1],
+          });
+          const output = await renderTest.renderFunction(canvas, fabric);
+          if (renderTest.assertRendering) {
+            canvas.renderAll();
+            await renderTest.assertRendering(canvas, fabric);
+          }
+          return output;
+        },
+        title: renderTest.title,
+      };
+    });
+  },
+  {
+    enableRetinaScaling: false,
+  },
+);
